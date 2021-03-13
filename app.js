@@ -3,6 +3,8 @@ const logger = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
+require('dotenv').config();
 
 const contactsRouter = require('./routes/api/contacts');
 const usersRouter = require('./routes/api/users');
@@ -10,11 +12,14 @@ const { HttpCode } = require('./helpers/constants');
 
 const app = express();
 
+const USERS_AVATARS = process.env.USERS_AVATARS;
+app.use(express.static(path.join(__dirname, USERS_AVATARS)));
+
 const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 
 // helmet for better headers in the response
 app.use(helmet());
-app.use(logger(formatsLogger));
+app.get('env') !== 'test' && app.use(logger(formatsLogger));
 app.use(cors());
 // limit for big data - 10000 bites limit is set
 app.use(express.json({ limit: 10000 }));
